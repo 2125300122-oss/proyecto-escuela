@@ -1,0 +1,88 @@
+
+
+<?php $__env->startSection('contenido'); ?>
+<div class="mb-8 border-b border-gray-100 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+        <span class="text-blue-600 font-extrabold text-xs uppercase tracking-widest block mb-1">Módulo Productos / Medicamentos</span>
+        <h1 class="text-3xl font-black text-blue-900">Catálogo de Medicamentos e Inventario</h1>
+        <p class="text-sm text-gray-500 mt-1">Consulta e inventario general de medicamentos y productos farmacéuticos.</p>
+    </div>
+    <a href="<?php echo e(url('/productos/formulario')); ?>" class="text-white bg-green-600 hover:bg-green-700 font-bold rounded-xl text-sm px-5 py-3 shadow-md transition-all flex items-center justify-center gap-2">
+        <i class="bi bi-capsule text-lg"></i> Agregar Nuevo Producto
+    </a>
+</div>
+
+<?php if(session('exito')): ?>
+    <div class="p-4 mb-6 text-sm text-green-800 rounded-2xl bg-green-50 border border-green-200 flex items-center gap-2" role="alert">
+        <i class="bi bi-check-circle-fill text-green-600 text-lg"></i>
+        <span><?php echo e(session('exito')); ?></span>
+    </div>
+<?php endif; ?>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-2xl border border-gray-100 bg-white">
+    <table class="w-full text-sm text-left text-gray-600">
+        <thead class="text-xs text-blue-900 uppercase bg-blue-50/70 border-b border-gray-100">
+            <tr>
+                <th scope="col" class="px-6 py-4 font-black">Imagen</th>
+                <th scope="col" class="px-6 py-4 font-black">Medicamento / Producto</th>
+                <th scope="col" class="px-6 py-4 font-black">Categoría</th>
+                <th scope="col" class="px-6 py-4 font-black">Tipo</th>
+                <th scope="col" class="px-6 py-4 font-black">Marca</th>
+                <th scope="col" class="px-6 py-4 font-black">Precio / Descuento</th>
+                <th scope="col" class="px-6 py-4 font-black text-center">Stock</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            <?php $__empty_1 = true; $__currentLoopData = $productos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                <tr class="hover:bg-gray-50/80 transition-colors">
+                    <td class="px-6 py-4">
+                        <img src="<?php echo e(asset($p->imagen1)); ?>" alt="Foto" class="w-12 h-12 rounded-xl object-cover border border-gray-200 shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo e(urlencode($p->nombre)); ?>&background=0D8ABC&color=fff'">
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-gray-900 text-base"><?php echo e($p->nombre); ?></div>
+                        <div class="text-xs text-gray-500 line-clamp-1"><?php echo e($p->descripcion); ?></div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-100 text-blue-800">
+                            <?php echo e($p->categoria->nombre ?? 'Sin categoría'); ?>
+
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-purple-100 text-purple-800">
+                            <?php echo e($p->tipo->nombre ?? 'Sin tipo'); ?>
+
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-100 text-amber-800">
+                            <?php echo e($p->marca->nombre ?? 'Sin marca'); ?>
+
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-black text-gray-900">$<?php echo e(number_format($p->precio, 2)); ?></div>
+                        <?php if($p->descuento > 0): ?>
+                            <div class="text-xs text-green-600 font-bold">Desc: -$<?php echo e(number_format($p->descuento, 2)); ?></div>
+                        <?php endif; ?>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-3 py-1 text-xs font-extrabold rounded-full <?php echo e($p->existencia > 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
+                            <?php echo e($p->existencia); ?> uds.
+                        </span>
+                    </td>
+                </tr>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                <tr>
+                    <td colspan="7" class="p-10 text-center text-gray-400 italic bg-white">
+                        <i class="bi bi-inbox text-3xl block mb-2 text-gray-300"></i>
+                        No hay productos registrados en la base de datos.
+                    </td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('plantilla.layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\5aCIOA\resources\views/productos/listado.blade.php ENDPATH**/ ?>
