@@ -23,6 +23,7 @@
     <table class="w-full text-sm text-left text-gray-600">
         <thead class="text-xs text-blue-900 uppercase bg-blue-50/70 border-b border-gray-100">
             <tr>
+                <th scope="col" class="px-6 py-4 font-black">ID</th>
                 <th scope="col" class="px-6 py-4 font-black">Imagen</th>
                 <th scope="col" class="px-6 py-4 font-black">Medicamento / Producto</th>
                 <th scope="col" class="px-6 py-4 font-black">Categoría</th>
@@ -35,6 +36,7 @@
         <tbody class="divide-y divide-gray-100">
             @forelse ($productos as $p)
                 <tr class="hover:bg-gray-50/80 transition-colors">
+                    <td class="px-6 py-4 font-bold text-gray-900">#{{ $p->id }}</td>
                     <td class="px-6 py-4">
                         <img src="{{ asset($p->imagen1) }}" alt="Foto" class="w-12 h-12 rounded-xl object-cover border border-gray-200 shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($p->nombre) }}&background=0D8ABC&color=fff'">
                     </td>

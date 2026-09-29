@@ -11,12 +11,12 @@ class CategoriaController extends Controller
     public function listar()
     {
         $categorias = Categoria::all();
-        return view("categorias/listado", compact("categorias"));
+        return view("/categorias/listado", compact("categorias"));
     }
 
     public function vistaFormulario()
     {
-        return view("categorias/formulario");
+        return view("categorias.formulario");
     }
 
     public function registrar(Request $request)

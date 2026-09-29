@@ -7,6 +7,9 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\TipoController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\ProductoPedidoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -54,3 +57,19 @@ Route::get('/productos/listado', [ProductoController::class, 'listar']);
 Route::get('/productos/formulario', [ProductoController::class, 'vistaFormulario']);
 Route::post('/productos/formulario', [ProductoController::class, 'registrar']);
 Route::post('/productos/guardar', [ProductoController::class, 'registrar']);
+
+// RUTAS EMPLEADOS
+Route::get('/empleados/listado', [EmpleadoController::class, 'listar']);
+Route::get('/empleados/formulario', [EmpleadoController::class, 'vistaFormulario']);
+Route::post('/empleados/guardar', [EmpleadoController::class, 'registrar']);
+
+// RUTAS PEDIDOS
+Route::get('/pedidos/listado', [PedidoController::class, 'listar']);
+Route::get('/pedidos/formulario', [PedidoController::class, 'vistaFormulario']);
+Route::post('/pedidos/guardar', [PedidoController::class, 'registrar']);
+
+// RUTAS DETALLE DE PEDIDOS (PRODUCTOS_PEDIDOS)
+Route::get('/productos_pedidos/listado', [ProductoPedidoController::class, 'listar']);
+Route::get('/detalles/listado', [ProductoPedidoController::class, 'listar']);
+Route::get('/productos_pedidos/formulario', [ProductoPedidoController::class, 'vistaFormulario']);
+Route::post('/productos_pedidos/guardar', [ProductoPedidoController::class, 'registrar']);

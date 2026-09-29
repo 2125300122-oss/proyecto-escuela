@@ -13,7 +13,7 @@ class ProductoController extends Controller
 {
     public function listar()
     {
-        $productos = Producto::all();
+        $productos = Producto::with(['categoria', 'tipo', 'marca'])->get();
         return view("productos/listado", compact("productos"));
     }
 

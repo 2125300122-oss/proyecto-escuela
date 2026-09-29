@@ -116,6 +116,33 @@
                     </div>
                 </li>
 
+                <!-- DROPDOWN EMPLEADOS -->
+                <li>
+                    <button id="dropdownEmpleadosLink" data-dropdown-toggle="dropdownEmpleados" class="flex items-center justify-between w-full py-2 px-3 text-gray-700 rounded-lg hover:bg-blue-50 md:hover:bg-transparent md:hover:text-blue-600 md:w-auto font-semibold transition-colors">
+                        <span class="flex items-center gap-1.5"><i class="bi bi-person-badge-fill text-blue-600"></i> Empleados</span>
+                        <svg class="w-2.5 h-2.5 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
+                    </button>
+                    <div id="dropdownEmpleados" class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-2xl shadow-xl w-52 border border-gray-100">
+                        <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownEmpleadosLink">
+                            <li><a href="{{ url('/empleados/listado') }}" class="block px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2"><i class="bi bi-person-lines-fill text-blue-600"></i> Listado Empleados</a></li>
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- DROPDOWN PEDIDOS / VENTAS -->
+                <li>
+                    <button id="dropdownPedidosLink" data-dropdown-toggle="dropdownPedidos" class="flex items-center justify-between w-full py-2 px-3 text-gray-700 rounded-lg hover:bg-blue-50 md:hover:bg-transparent md:hover:text-blue-600 md:w-auto font-semibold transition-colors">
+                        <span class="flex items-center gap-1.5"><i class="bi bi-cart-check-fill text-blue-600"></i> Pedidos</span>
+                        <svg class="w-2.5 h-2.5 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
+                    </button>
+                    <div id="dropdownPedidos" class="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-2xl shadow-xl w-52 border border-gray-100">
+                        <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownPedidosLink">
+                            <li><a href="{{ url('/pedidos/listado') }}" class="block px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2"><i class="bi bi-receipt text-blue-600"></i> Listado Pedidos</a></li>
+                            <li><a href="{{ url('/productos_pedidos/listado') }}" class="block px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2"><i class="bi bi-list-check text-blue-600"></i> Detalles / Productos en Pedido</a></li>
+                        </ul>
+                    </div>
+                </li>
+
             </ul>
         </div>
     </div>
