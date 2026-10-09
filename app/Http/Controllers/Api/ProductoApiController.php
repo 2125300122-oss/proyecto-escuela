@@ -1,45 +1,74 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Producto;
-use App\Models\Categoria;
-use App\Models\Tipo;
-use App\Models\Marca;
 use Illuminate\Support\Facades\Validator;
 
-class ProductoController extends Controller
+class ProductoApiController extends Controller
 {
-    public function listar()
+    /**
+     * GET /api/productos
+     * Retorna la lista de productos activos en formato JSON con relaciones resueltas.
+     */
+    public function index()
     {
         $productos = Producto::where('estado', 1)->with(['categoria', 'tipo', 'marca'])->get();
-        return view("productos/listado", compact("productos"));
+
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Lista de productos obtenida correctamente',
+            'data' => $productos
+        ], 200);
     }
 
-    public function vistaFormulario()
+    /**
+     * GET /api/productos/{id}
+     * Retorna un producto específico por ID.
+     */
+    public function show($id)
     {
-        $categorias = Categoria::all();
-        $tipos = Tipo::all();
-        $marcas = Marca::all();
+        $producto = Producto::with(['categoria', 'tipo', 'marca'])->find($id);
 
-        return view("productos/formulario", compact("categorias", "tipos", "marcas"));
+        if (!$producto) {
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'El producto solicitado con ID ' . $id . ' no existe en la base de datos'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Producto encontrado',
+            'data' => $producto
+        ], 200);
     }
 
-    public function registrar(Request $request)
+    /**
+     * POST /api/productos
+     * Crea un nuevo producto validando la entrada de datos.
+     */
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nombre' => 'required',
-            'descripcion' => 'required',
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string',
             'categoria_id' => 'required|exists:categorias,id',
             'tipo_id' => 'required|exists:tipos,id',
             'marca_id' => 'required|exists:marcas,id',
-            'precio' => 'required|numeric',
-            'existencia' => 'required|integer',
+            'precio' => 'required|numeric|min:0',
+            'existencia' => 'required|integer|min:0',
+            'descuento' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'Errores de validación en la petición',
+                'errores' => $validator->errors()
+            ], 422);
         }
 
         $producto = new Producto();
@@ -68,30 +97,26 @@ class ProductoController extends Controller
             $producto->save();
         }
 
-        return redirect('/productos/listado')->with('exito', 'Producto registrado con éxito');
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Producto creado con éxito en la API',
+            'data' => $producto->load(['categoria', 'tipo', 'marca'])
+        ], 201);
     }
 
-    public function vistaEdicion($id)
+    /**
+     * PUT /api/productos/{id}
+     * Actualiza un producto existente.
+     */
+    public function update(Request $request, $id)
     {
         $producto = Producto::find($id);
 
         if (!$producto) {
-            return redirect('/productos/listado')->with('error', 'El producto especificado no existe en la base de datos.');
-        }
-
-        $categorias = Categoria::all();
-        $tipos = Tipo::all();
-        $marcas = Marca::all();
-
-        return view("productos/edicion", compact("producto", "categorias", "tipos", "marcas"));
-    }
-
-    public function actualizar(Request $request, $id)
-    {
-        $producto = Producto::find($id);
-
-        if (!$producto) {
-            return redirect('/productos/listado')->with('error', 'No se pudo actualizar: el producto no existe en la base de datos.');
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'No se encontró el producto con ID ' . $id . ' para actualizar'
+            ], 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -106,7 +131,11 @@ class ProductoController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'Errores de validación en la actualización',
+                'errores' => $validator->errors()
+            ], 422);
         }
 
         $producto->nombre = $request->nombre;
@@ -129,39 +158,34 @@ class ProductoController extends Controller
 
         $producto->save();
 
-        return redirect('/productos/listado')->with('exito', 'Producto #' . $producto->id . ' actualizado correctamente');
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Producto actualizado correctamente vía API',
+            'data' => $producto->load(['categoria', 'tipo', 'marca'])
+        ], 200);
     }
 
     /**
-     * Proceso MOSTRAR: Valida existencia del ID y carga la información de solo lectura
-     * resolviendo nombres de llaves foráneas en lugar de IDs.
+     * DELETE /api/productos/{id}
+     * Elimina (borrado lógico) un producto.
      */
-    public function vistaMostrar($id)
-    {
-        $producto = Producto::with(['categoria', 'tipo', 'marca'])->find($id);
-
-        if (!$producto) {
-            return redirect('/productos/listado')->with('error', 'El producto solicitado no existe en la base de datos.');
-        }
-
-        return view("productos/mostrar", compact("producto"));
-    }
-
-    /**
-     * Proceso BORRAR: Valida existencia del ID antes de aplicar el borrado (lógico/físico).
-     */
-    public function borrar($id)
+    public function destroy($id)
     {
         $producto = Producto::find($id);
 
         if (!$producto) {
-            return redirect('/productos/listado')->with('error', 'No se pudo eliminar: el producto no existe en la base de datos.');
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'No existe el producto con ID ' . $id . ' para eliminar'
+            ], 404);
         }
 
-        // Aplicamos borrado lógico ajustando el estado o borrado directo
         $producto->estado = 0;
         $producto->save();
 
-        return redirect('/productos/listado')->with('exito', 'Producto #' . $id . ' eliminado exitosamente de la base de datos.');
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Producto con ID ' . $id . ' eliminado exitosamente'
+        ], 200);
     }
 }

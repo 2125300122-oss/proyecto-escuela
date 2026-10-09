@@ -19,6 +19,13 @@
     </div>
 @endif
 
+@if (session('error'))
+    <div class="p-4 mb-6 text-sm text-red-800 rounded-2xl bg-red-50 border border-red-200 flex items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill text-red-600 text-lg"></i>
+        <span>{{ session('error') }}</span>
+    </div>
+@endif
+
 <div class="relative overflow-x-auto shadow-md sm:rounded-2xl border border-gray-100 bg-white">
     <table class="w-full text-sm text-left text-gray-600">
         <thead class="text-xs text-blue-900 uppercase bg-blue-50/70 border-b border-gray-100">
@@ -27,6 +34,7 @@
                 <th scope="col" class="px-6 py-4 font-black">ID</th>
                 <th scope="col" class="px-6 py-4 font-black">Forma Farmacéutica / Tipo</th>
                 <th scope="col" class="px-6 py-4 font-black text-center">Estado</th>
+                <th scope="col" class="px-6 py-4 font-black text-center">Acciones CRUD</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -42,10 +50,23 @@
                             {{ $t->estado ? 'Activo' : 'Inactivo' }}
                         </span>
                     </td>
+                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <a href="{{ url('/tipos/mostrar/' . $t->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-all">
+                                <i class="bi bi-eye-fill"></i> Ver
+                            </a>
+                            <a href="{{ url('/tipos/editar/' . $t->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-all">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </a>
+                            <a href="{{ url('/tipos/borrar/' . $t->id) }}" onclick="return confirm('¿Eliminar tipo?')" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-all">
+                                <i class="bi bi-trash-fill"></i> Borrar
+                            </a>
+                        </div>
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="p-10 text-center text-gray-400 italic bg-white">
+                    <td colspan="5" class="p-10 text-center text-gray-400 italic bg-white">
                         <i class="bi bi-inbox text-3xl block mb-2 text-gray-300"></i>
                         No hay tipos de presentación registrados.
                     </td>

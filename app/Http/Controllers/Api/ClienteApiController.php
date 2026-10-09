@@ -1,34 +1,57 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Cliente;
 use Illuminate\Support\Facades\Validator;
 
-class ClienteController extends Controller
+class ClienteApiController extends Controller
 {
-    public function listar()
+    public function index()
     {
         $clientes = Cliente::where('estado', 1)->get();
-        return view("clientes/listado", compact("clientes"));
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Lista de clientes obtenida correctamente',
+            'data' => $clientes
+        ], 200);
     }
 
-    public function vistaFormulario()
+    public function show($id)
     {
-        return view("clientes/formulario");
+        $cliente = Cliente::find($id);
+
+        if (!$cliente) {
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'Cliente con ID ' . $id . ' no encontrado'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Cliente encontrado',
+            'data' => $cliente
+        ], 200);
     }
 
-    public function registrar(Request $request)
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nombres' => 'required|string|max:255',
             'apellidos' => 'required|string|max:255',
             'correo' => 'required|email|unique:clientes,correo',
+            'direccion' => 'required|string',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'Error de validación',
+                'errores' => $validator->errors()
+            ], 422);
         }
 
         $cliente = new Cliente();
@@ -36,7 +59,7 @@ class ClienteController extends Controller
         $cliente->apellidos = $request->apellidos;
         $cliente->correo = $request->correo;
         $cliente->contraseña = bcrypt($request->contraseña ?? 'cliente123');
-        $cliente->direccion = $request->direccion ?? "Dirección registrada";
+        $cliente->direccion = $request->direccion;
         $cliente->imagen = "imagenes/clientes/cliente_default.png";
         $cliente->estado = 1;
 
@@ -52,26 +75,22 @@ class ClienteController extends Controller
             $cliente->save();
         }
 
-        return redirect('/clientes/listado')->with('exito', 'Cliente registrado con éxito');
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Cliente registrado correctamente',
+            'data' => $cliente
+        ], 201);
     }
 
-    public function vistaEdicion($id)
+    public function update(Request $request, $id)
     {
         $cliente = Cliente::find($id);
 
         if (!$cliente) {
-            return redirect('/clientes/listado')->with('error', 'El cliente especificado no existe en la base de datos.');
-        }
-
-        return view("clientes/edicion", compact("cliente"));
-    }
-
-    public function actualizar(Request $request, $id)
-    {
-        $cliente = Cliente::find($id);
-
-        if (!$cliente) {
-            return redirect('/clientes/listado')->with('error', 'No se pudo actualizar: el cliente no existe en la base de datos.');
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'Cliente no encontrado'
+            ], 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -82,7 +101,11 @@ class ClienteController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'Error de validación',
+                'errores' => $validator->errors()
+            ], 422);
         }
 
         $cliente->nombres = $request->nombres;
@@ -101,37 +124,30 @@ class ClienteController extends Controller
 
         $cliente->save();
 
-        return redirect('/clientes/listado')->with('exito', 'Cliente #' . $cliente->id . ' actualizado con éxito');
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Cliente actualizado correctamente',
+            'data' => $cliente
+        ], 200);
     }
 
-    /**
-     * Proceso MOSTRAR: Muestra información de solo lectura validando que el ID exista.
-     */
-    public function vistaMostrar($id)
+    public function destroy($id)
     {
         $cliente = Cliente::find($id);
 
         if (!$cliente) {
-            return redirect('/clientes/listado')->with('error', 'El cliente solicitado no existe en la base de datos.');
-        }
-
-        return view("clientes/mostrar", compact("cliente"));
-    }
-
-    /**
-     * Proceso BORRAR: Valida existencia del ID antes de la eliminación.
-     */
-    public function borrar($id)
-    {
-        $cliente = Cliente::find($id);
-
-        if (!$cliente) {
-            return redirect('/clientes/listado')->with('error', 'No se pudo eliminar: el cliente no existe en la base de datos.');
+            return response()->json([
+                'status' => false,
+                'mensaje' => 'Cliente no encontrado'
+            ], 404);
         }
 
         $cliente->estado = 0;
         $cliente->save();
 
-        return redirect('/clientes/listado')->with('exito', 'Cliente #' . $id . ' eliminado con éxito.');
+        return response()->json([
+            'status' => true,
+            'mensaje' => 'Cliente con ID ' . $id . ' eliminado con éxito'
+        ], 200);
     }
 }

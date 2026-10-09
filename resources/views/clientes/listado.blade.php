@@ -19,6 +19,13 @@
     </div>
 @endif
 
+@if (session('error'))
+    <div class="p-4 mb-6 text-sm text-red-800 rounded-2xl bg-red-50 border border-red-200 flex items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill text-red-600 text-lg"></i>
+        <span>{{ session('error') }}</span>
+    </div>
+@endif
+
 <div class="relative overflow-x-auto shadow-md sm:rounded-2xl border border-gray-100 bg-white">
     <table class="w-full text-sm text-left text-gray-600">
         <thead class="text-xs text-blue-900 uppercase bg-blue-50/70 border-b border-gray-100">
@@ -26,10 +33,10 @@
                 <th scope="col" class="px-6 py-4 font-black">Foto</th>
                 <th scope="col" class="px-6 py-4 font-black">ID</th>
                 <th scope="col" class="px-6 py-4 font-black">Nombre Completo</th>
-                <th scope="col" class="px-6 py-4 font-black">Teléfono</th>
                 <th scope="col" class="px-6 py-4 font-black">Correo Electrónico</th>
                 <th scope="col" class="px-6 py-4 font-black">Dirección</th>
                 <th scope="col" class="px-6 py-4 font-black text-center">Estado</th>
+                <th scope="col" class="px-6 py-4 font-black text-center">Acciones CRUD</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -40,15 +47,25 @@
                     </td>
                     <td class="px-6 py-4 font-bold text-gray-900">#{{ $cliente->id }}</td>
                     <td class="px-6 py-4 font-bold text-gray-900">{{ $cliente->nombres }} {{ $cliente->apellidos }}</td>
-                    <td class="px-6 py-4 font-medium text-gray-800">
-                        <i class="bi bi-telephone-fill text-xs text-blue-500 mr-1"></i>{{ $cliente->telefono ?? 'Sin teléfono' }}
-                    </td>
                     <td class="px-6 py-4 text-blue-600 font-semibold">{{ $cliente->correo }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ $cliente->direccion }}</td>
                     <td class="px-6 py-4 text-center">
                         <span class="px-2.5 py-1 text-xs font-bold rounded-full {{ $cliente->estado ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ $cliente->estado ? 'Activo' : 'Inactivo' }}
                         </span>
+                    </td>
+                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <a href="{{ url('/clientes/mostrar/' . $cliente->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-all">
+                                <i class="bi bi-eye-fill"></i> Ver
+                            </a>
+                            <a href="{{ url('/clientes/editar/' . $cliente->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-all">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </a>
+                            <a href="{{ url('/clientes/borrar/' . $cliente->id) }}" onclick="return confirm('¿Eliminar cliente?')" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-all">
+                                <i class="bi bi-trash-fill"></i> Borrar
+                            </a>
+                        </div>
                     </td>
                 </tr>
             @empty
