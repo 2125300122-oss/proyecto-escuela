@@ -19,6 +19,13 @@
         @endif
     </div>
 
+    <!-- MENSAJES DE NOTIFICACIÓN -->
+    @if (session('exito'))
+        <div class="p-4 bg-green-100 border border-green-200 text-green-800 text-xs font-bold rounded-2xl flex items-center gap-2">
+            <i class="bi bi-check-circle-fill text-base"></i> {{ session('exito') }}
+        </div>
+    @endif
+
     <!-- TARJETA CABECERA DEL PEDIDO -->
     <div class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
@@ -35,9 +42,42 @@
                     </span>
                 @else
                     <span class="px-4 py-2 text-xs font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1.5">
-                        <i class="bi bi-check-circle-fill"></i> Estado: {{ strtoupper($pedido->estado ?? 'PAGADO') }}
+                        <i class="bi bi-check-circle-fill"></i> Estado: {{ strtoupper($pedido->estado ?? 'PAGADO VIA PAYPAL') }}
                     </span>
                 @endif
+            </div>
+        </div>
+
+        <!-- INFORMACIÓN DE LA TRANSACCIÓN DE PAGO PAYPAL SANDBOX -->
+        <div class="bg-amber-50/70 p-6 rounded-2xl border border-amber-200/80 space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="bi bi-paypal text-blue-600 text-base"></i> Detalles del Pago vía Pasarela (PayPal Sandbox)
+                </span>
+                <span class="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-emerald-200 text-emerald-900">
+                    Aprobado (Sandbox)
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-amber-200/50 text-xs">
+                <div>
+                    <span class="text-slate-500 font-bold block">Código de Transacción:</span>
+                    <span class="font-mono font-black text-slate-900 bg-white px-2 py-1 rounded border border-amber-300 inline-block mt-0.5">
+                        {{ $pedido->codigo_transaccion ?? 'PAYPAL-SANDBOX-TX-' . strtoupper(substr(md5($pedido->id ?? 1), 0, 10)) }}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-slate-500 font-bold block">Método de Pago:</span>
+                    <span class="font-bold text-slate-800 mt-0.5 block">
+                        {{ $pedido->metodo_pago ?? 'PayPal Sandbox REST API' }}
+                    </span>
+                </div>
+                <div>
+                    <span class="text-slate-500 font-bold block">Fecha del Pago:</span>
+                    <span class="font-bold text-slate-800 mt-0.5 block">
+                        {{ isset($pedido->fecha_pago) ? date('Y-m-d H:i:s', strtotime($pedido->fecha_pago)) : date('Y-m-d H:i:s', strtotime($pedido->fecha ?? now())) }}
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -78,7 +118,7 @@
             </div>
 
             <div class="text-right">
-                <span class="text-xs text-blue-600 font-bold uppercase block">Total Pagado</span>
+                <span class="text-xs text-blue-600 font-bold uppercase block">Total Pagado vía Pasarela</span>
                 <span class="text-3xl font-black text-blue-900">${{ number_format($pedido->total ?? 0, 2) }} <span class="text-xs font-normal text-slate-400">MXN</span></span>
             </div>
         </div>

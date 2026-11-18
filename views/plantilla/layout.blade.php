@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cliente Final - Catálogo, Carrito, Pedidos & Autenticación de Usuario</title>
+    <title>Cliente Final - Catálogo, Carrito, Pedidos, Pasarela PayPal Sandbox & Usuarios</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -43,7 +43,7 @@
                     </div>
                     <div>
                         <span class="text-lg font-black text-slate-900 tracking-tight block leading-tight">FarmaCliente</span>
-                        <span class="text-[10px] font-bold text-blue-600 tracking-widest uppercase block">Pedidos & Carrito</span>
+                        <span class="text-[10px] font-bold text-blue-600 tracking-widest uppercase block">Pasarela PayPal Sandbox</span>
                     </div>
                 </a>
 
@@ -81,6 +81,10 @@
                             <a href="{{ url('/usuario/pedidos') }}" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-all inline-flex items-center gap-1.5">
                                 <i class="bi bi-bag-check-fill text-blue-600"></i>
                                 <span>Mis Pedidos</span>
+                            </a>
+                            <a href="{{ url('/usuario/pagos') }}" class="px-3 py-2 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all inline-flex items-center gap-1.5">
+                                <i class="bi bi-credit-card-2-front-fill text-emerald-600"></i>
+                                <span>Estado de Pagos</span>
                             </a>
                             <a href="{{ url('/usuario/perfil') }}" class="px-3 py-2 rounded-xl text-xs font-black text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all inline-flex items-center gap-1.5">
                                 <i class="bi bi-person-circle text-blue-600 text-base"></i>
@@ -121,11 +125,12 @@
                 <a href="{{ url('/carrito') }}" class="hover:text-blue-600">🛒 Carrito ({{ $itemsEnCarrito }})</a>
                 @if ($userToken)
                     <a href="{{ url('/usuario/pedidos') }}" class="hover:text-blue-600">📋 Mis Pedidos</a>
+                    <a href="{{ url('/usuario/pagos') }}" class="hover:text-blue-600">💳 Estado de Pagos</a>
                 @endif
                 <a href="{{ url('/contacto') }}" class="hover:text-blue-600">📩 Contacto</a>
             </div>
             <p class="text-xs text-slate-400 font-medium">
-                © {{ date('Y') }} Sitio Web Cliente Final - Gestión de Pedidos con Token Sanctum & Descuento de Stock en API.
+                © {{ date('Y') }} Sitio Web Cliente Final - Pasarela de Pago PayPal Sandbox & Registro de Transacciones vía API.
             </p>
         </div>
     </footer>

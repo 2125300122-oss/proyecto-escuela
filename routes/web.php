@@ -1,165 +1,71 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\AdministradorController;
-use App\Http\Controllers\ClienteController;
-use App\Http\Controllers\CategoriaController;
-use App\Http\Controllers\MarcaController;
-use App\Http\Controllers\TipoController;
-use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\EmpleadoController;
-use App\Http\Controllers\PedidoController;
-use App\Http\Controllers\ProductoPedidoController;
-use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\PaginasController;
+use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\CarritoController;
+use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\PedidoUsuarioController;
 
-use App\Http\Controllers\Api\ProductoApiController;
-use App\Http\Controllers\Api\ClienteApiController;
-use App\Http\Controllers\Api\CategoriaApiController;
-use App\Http\Controllers\Api\MarcaApiController;
-use App\Http\Controllers\Api\TipoApiController;
+/*
+|--------------------------------------------------------------------------
+| RUTAS DEL CLIENTE FINAL (SIN BASE DE DATOS LOCAL - CONSUMO API REST)
+|--------------------------------------------------------------------------
+*/
 
-// RUTAS PÚBLICAS DE AUTENTICACIÓN
+// 🏠 1. Página de Inicio
+Route::get('/', [PaginasController::class, 'inicio']);
+Route::get('/inicio', [PaginasController::class, 'inicio']);
 
-Route::get('/', function () {
-    return redirect('/login');
-});
+// 👥 2. Página Nosotros
+Route::get('/nosotros', [PaginasController::class, 'nosotros']);
 
-Route::get('/login', [LoginController::class, 'vistaLogin'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+// 🛍️ 3. Catálogo de productos (Consumiendo GET /api/productos)
+Route::get('/catalogo', [CatalogoController::class, 'index']);
 
-// RUTAS DE AUTENTICACIÓN GOOGLE SOCIALITE (RED SOCIAL)
-Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+// 📦 4. Detalle del producto con las 3 imágenes (Consumiendo GET /api/productos/{id})
+Route::get('/catalogo/detalle/{id}', [CatalogoController::class, 'show']);
 
-// RUTAS PROTEGIDAS MEDIANTE EL GUARD PERSONALIZADO 'auth:admin'
+// 📩 5. Página Contacto
+Route::get('/contacto', [PaginasController::class, 'contacto']);
 
-Route::middleware(['auth:admin'])->group(function () {
+// 🛒 6. RUTAS DEL CARRITO DE COMPRAS (GESTIONADO VÍA SESIÓN)
+Route::get('/carrito', [CarritoController::class, 'index']);
+Route::post('/carrito/agregar/{id}', [CarritoController::class, 'agregar']);
+Route::post('/carrito/actualizar/{id}', [CarritoController::class, 'actualizar']);
+Route::get('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar']);
+Route::post('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar']);
+Route::get('/carrito/vaciar', [CarritoController::class, 'vaciar']);
+Route::post('/carrito/vaciar', [CarritoController::class, 'vaciar']);
 
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    Route::get('/logout', [LoginController::class, 'logout']);
+// 👤 7. RUTAS DE AUTENTICACIÓN Y GESTIÓN DE PERFIL DE USUARIO / CLIENTE (CON TOKEN SANCTUM)
+Route::get('/usuario/registro', [UsuarioController::class, 'vistaRegistro']);
+Route::post('/usuario/registro', [UsuarioController::class, 'registro']);
 
-    Route::view('/inicio', 'plantilla/layout')->name('dashboard');
+Route::get('/usuario/login', [UsuarioController::class, 'vistaLogin']);
+Route::post('/usuario/login', [UsuarioController::class, 'login']);
 
-    // RUTAS ADMINISTRADORES
-    Route::get('/administradores/listado', [AdministradorController::class, 'listar']);
-    Route::get('/administradores/formulario', [AdministradorController::class, 'vistaFormulario']);
-    Route::post('/administradores/guardar', [AdministradorController::class, 'registrar']);
-    Route::get('/administradores/editar/{id}', [AdministradorController::class, 'vistaEdicion']);
-    Route::post('/administradores/actualizar/{id}', [AdministradorController::class, 'actualizar']);
-    Route::put('/administradores/actualizar/{id}', [AdministradorController::class, 'actualizar']);
-    Route::get('/administradores/mostrar/{id}', [AdministradorController::class, 'vistaMostrar']);
-    Route::get('/administradores/borrar/{id}', [AdministradorController::class, 'borrar']);
-    Route::delete('/administradores/borrar/{id}', [AdministradorController::class, 'borrar']);
+Route::get('/usuario/logout', [UsuarioController::class, 'logout']);
+Route::post('/usuario/logout', [UsuarioController::class, 'logout']);
 
-    // Alias/Rutas legacy para Administradores
-    Route::get('/admin/listar', [AdministradorController::class, 'listar'])->name('admin.index');
-    Route::get('/admin/crear', [AdministradorController::class, 'vistaFormulario']);
-    Route::post('/admin/guardar', [AdministradorController::class, 'registrar']);
-    Route::get('/admin/editar/{id}', [AdministradorController::class, 'vistaEdicion']);
-    Route::post('/admin/actualizar/{id}', [AdministradorController::class, 'actualizar']);
-    Route::put('/admin/actualizar/{id}', [AdministradorController::class, 'actualizar']);
-    Route::get('/admin/mostrar/{id}', [AdministradorController::class, 'vistaMostrar']);
-    Route::get('/admin/borrar/{id}', [AdministradorController::class, 'borrar']);
-    Route::delete('/admin/borrar/{id}', [AdministradorController::class, 'borrar']);
+Route::get('/usuario/perfil', [UsuarioController::class, 'perfil']);
+Route::post('/usuario/perfil/actualizar', [UsuarioController::class, 'actualizarPerfil']);
+Route::post('/usuario/perfil/imagen', [UsuarioController::class, 'actualizarImagen']);
+Route::post('/usuario/perfil/password', [UsuarioController::class, 'actualizarPassword']);
 
-    // RUTAS CLIENTES
-    Route::get('/clientes/listado', [ClienteController::class, 'listar']);
-    Route::get('/clientes/formulario', [ClienteController::class, 'vistaFormulario']);
-    Route::post('/clientes/formulario', [ClienteController::class, 'registrar']);
-    Route::post('/clientes/guardar', [ClienteController::class, 'registrar']);
-    Route::get('/clientes/editar/{id}', [ClienteController::class, 'vistaEdicion']);
-    Route::post('/clientes/actualizar/{id}', [ClienteController::class, 'actualizar']);
-    Route::put('/clientes/actualizar/{id}', [ClienteController::class, 'actualizar']);
-    Route::get('/clientes/mostrar/{id}', [ClienteController::class, 'vistaMostrar']);
-    Route::get('/clientes/borrar/{id}', [ClienteController::class, 'borrar']);
-    Route::delete('/clientes/borrar/{id}', [ClienteController::class, 'borrar']);
+// 📋 8. RUTAS DE GESTIÓN DE PEDIDOS DEL CLIENTE (CON TOKEN SANCTUM Y CLIENTE_ID)
+Route::post('/pedidos/crear', [PedidoUsuarioController::class, 'crearPedido']);
+Route::get('/usuario/pedidos', [PedidoUsuarioController::class, 'misPedidos']);
+Route::get('/usuario/pedidos/{id}', [PedidoUsuarioController::class, 'detallePedido']);
+Route::post('/usuario/pedidos/cancelar/{id}', [PedidoUsuarioController::class, 'cancelarPedido']);
+Route::get('/usuario/pedidos/cancelar/{id}', [PedidoUsuarioController::class, 'cancelarPedido']);
 
-    // RUTAS CATEGORÍAS
-    Route::get('/categorias/listado', [CategoriaController::class, 'listar']);
-    Route::get('/categorias/formulario', [CategoriaController::class, 'vistaFormulario']);
-    Route::post('/categorias/guardar', [CategoriaController::class, 'registrar']);
-    Route::get('/categorias/editar/{id}', [CategoriaController::class, 'vistaEdicion']);
-    Route::post('/categorias/actualizar/{id}', [CategoriaController::class, 'actualizar']);
-    Route::put('/categorias/actualizar/{id}', [CategoriaController::class, 'actualizar']);
-    Route::get('/categorias/mostrar/{id}', [CategoriaController::class, 'vistaMostrar']);
-    Route::get('/categorias/borrar/{id}', [CategoriaController::class, 'borrar']);
-    Route::delete('/categorias/borrar/{id}', [CategoriaController::class, 'borrar']);
+// 💳 9. RUTAS DE PASARELA DE PAGO PAYPAL SANDBOX Y ESTADO DE PAGOS
+Route::post('/usuario/pedidos/pagar/{id}', [PedidoUsuarioController::class, 'pagarPedido']);
+Route::get('/usuario/pedidos/pagar/{id}', [PedidoUsuarioController::class, 'pagarPedido']);
+Route::get('/usuario/pagos', [PedidoUsuarioController::class, 'historialPagos']);
 
-    // RUTAS MARCAS
-    Route::get('/marcas/listado', [MarcaController::class, 'listar']);
-    Route::get('/marcas/formulario', [MarcaController::class, 'vistaFormulario']);
-    Route::post('/marcas/guardar', [MarcaController::class, 'registrar']);
-    Route::get('/marcas/editar/{id}', [MarcaController::class, 'vistaEdicion']);
-    Route::post('/marcas/actualizar/{id}', [MarcaController::class, 'actualizar']);
-    Route::put('/marcas/actualizar/{id}', [MarcaController::class, 'actualizar']);
-    Route::get('/marcas/mostrar/{id}', [MarcaController::class, 'vistaMostrar']);
-    Route::get('/marcas/borrar/{id}', [MarcaController::class, 'borrar']);
-    Route::delete('/marcas/borrar/{id}', [MarcaController::class, 'borrar']);
-
-    // RUTAS TIPOS
-    Route::get('/tipos/listado', [TipoController::class, 'listar']);
-    Route::get('/tipos/formulario', [TipoController::class, 'vistaFormulario']);
-    Route::post('/tipos/guardar', [TipoController::class, 'registrar']);
-    Route::get('/tipos/editar/{id}', [TipoController::class, 'vistaEdicion']);
-    Route::post('/tipos/actualizar/{id}', [TipoController::class, 'actualizar']);
-    Route::put('/tipos/actualizar/{id}', [TipoController::class, 'actualizar']);
-    Route::get('/tipos/mostrar/{id}', [TipoController::class, 'vistaMostrar']);
-    Route::get('/tipos/borrar/{id}', [TipoController::class, 'borrar']);
-    Route::delete('/tipos/borrar/{id}', [TipoController::class, 'borrar']);
-
-    // RUTAS PRODUCTOS
-    Route::get('/productos/listado', [ProductoController::class, 'listar']);
-    Route::get('/productos/formulario', [ProductoController::class, 'vistaFormulario']);
-    Route::post('/productos/formulario', [ProductoController::class, 'registrar']);
-    Route::post('/productos/guardar', [ProductoController::class, 'registrar']);
-    Route::get('/productos/editar/{id}', [ProductoController::class, 'vistaEdicion']);
-    Route::post('/productos/actualizar/{id}', [ProductoController::class, 'actualizar']);
-    Route::put('/productos/actualizar/{id}', [ProductoController::class, 'actualizar']);
-    Route::get('/productos/mostrar/{id}', [ProductoController::class, 'vistaMostrar']);
-    Route::get('/productos/borrar/{id}', [ProductoController::class, 'borrar']);
-    Route::delete('/productos/borrar/{id}', [ProductoController::class, 'borrar']);
-
-    // RUTAS EMPLEADOS
-    Route::get('/empleados/listado', [EmpleadoController::class, 'listar']);
-    Route::get('/empleados/formulario', [EmpleadoController::class, 'vistaFormulario']);
-    Route::post('/empleados/guardar', [EmpleadoController::class, 'registrar']);
-    Route::get('/empleados/editar/{id}', [EmpleadoController::class, 'vistaEdicion']);
-    Route::post('/empleados/actualizar/{id}', [EmpleadoController::class, 'actualizar']);
-    Route::put('/empleados/actualizar/{id}', [EmpleadoController::class, 'actualizar']);
-    Route::get('/empleados/mostrar/{id}', [EmpleadoController::class, 'vistaMostrar']);
-    Route::get('/empleados/borrar/{id}', [EmpleadoController::class, 'borrar']);
-    Route::delete('/empleados/borrar/{id}', [EmpleadoController::class, 'borrar']);
-
-    // RUTAS PEDIDOS
-    Route::get('/pedidos/listado', [PedidoController::class, 'listar']);
-    Route::get('/pedidos/formulario', [PedidoController::class, 'vistaFormulario']);
-    Route::post('/pedidos/guardar', [PedidoController::class, 'registrar']);
-
-    // RUTAS DETALLE DE PEDIDOS (PRODUCTOS_PEDIDOS)
-    Route::get('/productos_pedidos/listado', [ProductoPedidoController::class, 'listar']);
-    Route::get('/detalles/listado', [ProductoPedidoController::class, 'listar']);
-    Route::get('/productos_pedidos/formulario', [ProductoPedidoController::class, 'vistaFormulario']);
-    Route::post('/productos_pedidos/guardar', [ProductoPedidoController::class, 'registrar']);
-});
-
-// RUTAS API
-Route::prefix('api')->group(function () {
-    Route::get('/productos', [ProductoApiController::class, 'index']);
-    Route::get('/productos/{id}', [ProductoApiController::class, 'show']);
-    Route::post('/productos', [ProductoApiController::class, 'store']);
-    Route::put('/productos/{id}', [ProductoApiController::class, 'update']);
-    Route::delete('/productos/{id}', [ProductoApiController::class, 'destroy']);
-
-    Route::get('/clientes', [ClienteApiController::class, 'index']);
-    Route::get('/clientes/{id}', [ClienteApiController::class, 'show']);
-
-    Route::get('/categorias', [CategoriaApiController::class, 'index']);
-    Route::get('/categorias/{id}', [CategoriaApiController::class, 'show']);
-
-    Route::get('/marcas', [MarcaApiController::class, 'index']);
-    Route::get('/marcas/{id}', [MarcaApiController::class, 'show']);
-
-    Route::get('/tipos', [TipoApiController::class, 'index']);
-    Route::get('/tipos/{id}', [TipoApiController::class, 'show']);
-});
+// Alias/Compatibilidad
+Route::get('/login', [UsuarioController::class, 'vistaLogin']);
+Route::post('/login', [UsuarioController::class, 'login']);
+Route::get('/logout', [UsuarioController::class, 'logout']);
